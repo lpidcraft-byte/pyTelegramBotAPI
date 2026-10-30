@@ -1,3 +1,5 @@
+# Bot by @Zevalsiz
+
 import telebot
 import subprocess
 import os
@@ -10,6 +12,19 @@ import threading
 import sys
 import atexit
 import signal
+from flask import Flask
+
+# --- Render Port & Web Server Fix ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is alive and running!", 200
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+# ------------------------------------
 
 TOKEN = '8733440452:AAGZSroDubpgFfSRnBGfKmsmW4GqqzhnCqk'
 OWNER_ID = 8913966694
@@ -1337,9 +1352,15 @@ if __name__ == '__main__':
         logger.error(f"❌ Bot bağlantı hatası: {e}")
         exit(1)
 
+    # Web sunucusunu arka planda (thread ile) başlat
+    web_thread = threading.Thread(target=run_web_server, daemon=True)
+    web_thread.start()
+
     while True:
         try:
             bot.polling(none_stop=True, interval=1, timeout=30)
         except Exception as e:
             logger.error(f"❌ Hata: {e}")
             time.sleep(10)
+
+# Bot by @Zevalsiz
